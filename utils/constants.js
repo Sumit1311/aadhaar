@@ -1,7 +1,7 @@
 // https://<host>/<ver>/<ac>/<uid[0]>/<uid[1]>/<asalk>
 exports.CONTENT_TYPE = 'application/xml';
-exports.TEST_AUA_LICENSEKEY = 'MEaMX8fkRa6PqsqK6wGMrEXcXFl_oXHA-YuknI2uf0gKgZ80HaZgG3A';
-exports.TEST_ASA_LICENSEKEY = 'MG41KIrkk5moCkcO8w-2fc01-P7I5S-6X2-X7luVcDgZyOa2LXs3ELI';
+exports.TEST_AUA_LICENSEKEY = 'MBni88mRNM18dKdiVyDYCuddwXEQpl68dZAGBQ2nsOlGMzC9DkOVL5s';
+exports.TEST_ASA_LICENSEKEY = 'MMxNu7a6589B5x5RahDW-zNP7rhGbZb5HsTRwbi-VVNxkoFmkHGmYKM';
 exports.TEST_AUTH_CODE = 'public';
 exports.TEST_SUBAUA_CODE = exports.TEST_AUTH_CODE;
 exports.UIDAI_STAGE_CERT = require('path').join(__dirname, '..', 'res', 'uidai_auth_stage.cer');
@@ -38,7 +38,7 @@ exports.OTP = {
 }
 
 exports.TEST_DATA = [{
-	uid: '999999990019',
+	uid: '999941057058',
 	name: 'Shivshankar Choudhury',
 	dob: '13-05-1968',
 	dobt: 'V',
