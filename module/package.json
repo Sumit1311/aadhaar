@@ -1,0 +1,14 @@
+{
+  "name": "aadhar-sdk",
+  "version": "1.0.0",
+  "description": "SDK for interacting with aadhar (UIDAI) apis.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Sumit Toshniwal",
+  "license": "ISC",
+  "dependencies": {
+    "q": "^1.5.1"
+  }
+}
