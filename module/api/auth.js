@@ -1,12 +1,8 @@
 const Q = require('q');
 const conf = require('./configuration.js');
-const moment = require('moment');
-const js2xml = require('js2xmlparser');
-
-const encryptor = require('./encryptor.js');
-const signer = require('../utils/signer.js');
 const constants = require('../utils/constants.js');
 const XMLBuilder = require('../utils/XMLBuilder.js');
+var parseString = require('xml2js').parseString;
 var https = require('http');
 
 exports.authenticate = aadharAuthentication;
@@ -27,7 +23,7 @@ function aadharAuthentication(aadharNumber, data) {
 function doRequest(uid, reqXml, config) {
 	var options = {
 		hostname: config.AADHAR_HOST,
-		path: buildUrlPath(uid, constants.AADHAR_DATA[config.API_VERSION].URL_AUTH_PATHTEMPLATE),
+		path: buildUrlPath(uid, constants.AADHAR_DATA[config.API_VERSION].URL_AUTH_PATHTEMPLATE, config),
 		method: 'POST',
 		headers: {
 			'Content-Type': constants.CONTENT_TYPE,
@@ -45,8 +41,30 @@ function doRequest(uid, reqXml, config) {
 			// console.log(buffer);
 		});
 		res.on('end', function () {
-			console.log('\nResponse: ');
-			return deferred.resolve(buffer);
+			//console.log('\nResponse: ');
+            console.log(buffer);
+            parseString(buffer, function(err,result) {
+                if(err) {
+                    return deferred.reject(err);
+                }
+                console.log("======");
+                console.log((result));
+                if(result.AuthRes.$.ret && result.AuthRes.$.ret == 'y') {
+                    deferred.resolve({
+                        isAuthenticated : true,
+                        errMessage : "",
+                        data : result
+                    });
+                } else {
+                    deferred.resolve({
+                        isAuthenticated : false,
+                        errMessage : constants.errorMessages(result.AuthRes.$.err),
+                        data : result
+                    });
+                    
+                }
+            })
+			//return deferred.resolve(buffer);
 		});
 	});
 
@@ -55,12 +73,12 @@ function doRequest(uid, reqXml, config) {
         return deferred.reject(err);
 	});
 
-	console.log('\nURL: ');
+	//console.log('\nURL: ');
 	//console.log(URL_HOST + buildUrlPath(uid, URL_PATHTEMPLATE));
 
 	// reqXml = fs.readFileSync(require('path').join(__dirname, '..', '..', 'res', 'example_request_auth1_6.xml'),'utf8');
-	console.log('\nSending XML: ');
-	console.log(reqXml);
+	//console.log('\nSending XML: ');
+	//console.log(reqXml);
 	req.write(reqXml);
 	req.end();
     return deferred.promise;

@@ -27,7 +27,7 @@ exports.AADHAR_DATA[exports.API1_6]  = {
 
 /* Format : <XML_TAG>_<ATTRIBUTE_NAME> */
 //AUTH
-exports.AUTH_RC = {YES : 'y', NO : 'n'};
+exports.AUTH_RC = {YES : 'Y', NO : 'N'};
 exports.AUTH_RC.DEFAULT = exports.AUTH_RC.YES;
 exports.AUTH_TID = {REGISTERED : "registered", EMPTY : ""};
 exports.AUTH_TID.DEFAULT = exports.AUTH_TID.EMPTY;
@@ -127,3 +127,21 @@ exports.BIO_POSH = {
 	UNKNOWN: 'UNKNOWN'
 };
 //PV
+//
+
+//Response Errors
+
+exports.errorMessages = function(err) {
+    switch(err) {
+        case "100" : 
+            return '“Pi” (basic) attributes of demographic data did not match.'
+        case "200" : 
+            return ' “Pa” (address) attributes of demographic data did not match.'
+        case "300" : 
+            return ' Biometric data did not match.';
+        case "300" : 
+            return ' Biometric data did not match.';
+    }
+}
+    
+

@@ -15,7 +15,7 @@ function init() {
             return;
         }
         configuration = JSON.parse(buffer);
-        console.log(configuration);
+        //console.log(configuration);
         deferred.resolve();
     })
     return deferred.promise;

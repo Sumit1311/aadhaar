@@ -16,33 +16,7 @@ const SIG_DIGEST_SHA1 = 'http://www.w3.org/2001/04/xmlenc#sha256'; //'http://www
 const SIG_XPATH_SIGNATURE = "/*/*[local-name(.)='Signature' and namespace-uri(.)='http://www.w3.org/2000/09/xmldsig#']";
 
 const SIG_ALGO_RSASHA1 = 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256';
-var readP12 = new Promise(
-    function(resolve, reject) {
-        let password = 'public';
-        pem.readPkcs12(constants.STAGING_PRIVKEY_P12, {p12Password : password}, function(err, res) {
-            if(err) {
-                reject(err);
-            }
-            resolve(res); 
-        });
-        //    let p12 = fs.readFileSync(constants.STAGING_PRIVKEY_P12, 'binary');
-        //    let p12Asn1 = forge.asn1.fromDer(p12, false);
-        //    let password = 'public';
-        //    let pkcs12 = forge.pkcs12.pkcs12FromAsn1(p12Asn1, false, password);
-        //
-        //    let certBags = pkcs12.getBags({bagType: forge.pki.oids.certBag});
-        //    let certBag = certBags[forge.pki.oids.certBag][0];
-        //    console.log(certBag.cert.subject.attributes);
-        //    console.log('\n');
-        //
-        //    let pkBags = pkcs12.getBags({bagType: forge.pki.oids.pkcs8ShroudedKeyBag});
-        //    let pkBag = pkBags[forge.pki.oids.pkcs8ShroudedKeyBag][0];
-        //    let pkP12 = pkBag.key;
-        //    let pkPem = forge.pki.privateKeyToPem(pkP12);
-        //    console.log(pkPem);
-    }
-);
-
+var readP12; 
 let cert;
 let certInfo = '';
 var extractCertInfo = function(ks) {
@@ -162,5 +136,35 @@ exports.sign = function(xml) {
 }
 
 var xml = '<upi:RespPay xmlns:upi="http://npci.org/upi/schema/"><Head ver="1.0" ts="2015-01-16T14:15:47+05:30" orgId="npci" msgId="2"/><Txn id="8ENSVVR4QOS7X1UGPY7JGUV444PL9T2C3QM" note="Sending money for your use" ts="2015-01-16T14:15:42+05:30" type="PAY"><RiskScores><Score provider="sp" type="TXNRISK" value=""/><Score provider="npci" type="TXNRISK" value=""/></RiskScores></Txn><Resp reqMsgId="1" result="SUCCESS" approvalNum="3MKBVB"><Ref type="PAYER" seqNum="1" addr="kbhokray@upi" settAmount="5000" approvalNum="AWHWU9" /><Ref type="PAYEE" seqNum="2" addr="manager@upi" settAmount="5000" approvalNum="ESOP61" /></Resp></upi:RespPay>';
+
+exports.init = function(config) {
+readP12 = new Promise(
+    function(resolve, reject) {
+        let password = 'public';
+        pem.readPkcs12(config.UIDAI_PRIV_KEY_PATH, {p12Password : password}, function(err, res) {
+            if(err) {
+                reject(err);
+            }
+            resolve(res); 
+        });
+        //    let p12 = fs.readFileSync(constants.STAGING_PRIVKEY_P12, 'binary');
+        //    let p12Asn1 = forge.asn1.fromDer(p12, false);
+        //    let password = 'public';
+        //    let pkcs12 = forge.pkcs12.pkcs12FromAsn1(p12Asn1, false, password);
+        //
+        //    let certBags = pkcs12.getBags({bagType: forge.pki.oids.certBag});
+        //    let certBag = certBags[forge.pki.oids.certBag][0];
+        //    console.log(certBag.cert.subject.attributes);
+        //    console.log('\n');
+        //
+        //    let pkBags = pkcs12.getBags({bagType: forge.pki.oids.pkcs8ShroudedKeyBag});
+        //    let pkBag = pkBags[forge.pki.oids.pkcs8ShroudedKeyBag][0];
+        //    let pkP12 = pkBag.key;
+        //    let pkPem = forge.pki.privateKeyToPem(pkP12);
+        //    console.log(pkPem);
+    }
+);
+
+}
 
 // sign(xml);

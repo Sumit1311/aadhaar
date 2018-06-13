@@ -5,6 +5,9 @@ var config = require("../api/configuration.js").getConfiguration();
 var constants = require('./constants.js');
 const encryptor = require('../api/encryptor.js');
 const signer = require('./signer.js');
+//Function to get all values in an object
+Object.values = Object.values || (obj => Object.keys(obj).map(key => obj[key]));
+Object.isEmpty = Object.isEmpty || (obj => !(obj && Object.keys(obj).length > 0));
 
 exports.buildAuthXML = function(personData) {
     
@@ -29,11 +32,12 @@ exports.buildAuthXML = function(personData) {
 	let demo = new Demo(pi);
 
 	let ts = moment().subtract(1, 'hour').format(constants.PID_TS_ISO8601);
-	let ver = constants.PID_VER.DEFAULT;
+    //console.log(config);
+	let ver = constants.AADHAR_DATA[config.API_VERSION].PID_DEFAULT_VER;
 	let pid = new Pid(demo, empty, empty, { ts: ts, ver: ver });
 
 	let pidXml = js2xml.parse("ns2:Pid", pid/* , {declaration: {include: false}}*/);
-	console.log("PID:\n" + pidXml)
+	//console.log("PID:\n" + pidXml)
 
 	let encryPidXml = encryptor.encryptUsingSessionKey(pidXml, ts, sKey, true);
 	let encEncryPidXml = encryptor.encode64(encryPidXml)
