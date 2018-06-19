@@ -1,6 +1,7 @@
 const Q = require('q');
 const conf = require('./configuration.js');
 const constants = require('../utils/constants.js');
+const ErrorHandler = require('../utils/errorHandler.js');
 const XMLBuilder = require('../utils/XMLBuilder.js');
 var parseString = require('xml2js').parseString;
 var https = require('http');
@@ -9,13 +10,15 @@ exports.authenticate = aadharAuthentication;
 
 function aadharAuthentication(aadharNumber, data) {
     if(!aadharNumber) {
-        return Q.reject(new Error("Invalid Parameters"));
+        return Q.reject(new ErrorHandler("Invalid Parameters"));
     }
     return XMLBuilder.buildAuthXML(data)
     .then(function(authXML){
+        //console.log("XML is "+authXML);
         return doRequest(aadharNumber, authXML, conf.getConfiguration());
     })
     .catch(function(error){
+        //console.log(error);
         return Q.reject(error);
     });
 }
@@ -41,26 +44,18 @@ function doRequest(uid, reqXml, config) {
 			// console.log(buffer);
 		});
 		res.on('end', function () {
-			//console.log('\nResponse: ');
-            console.log(buffer);
+			console.log('\nResponse: ');
+            //console.log(buffer);
             parseString(buffer, function(err,result) {
                 if(err) {
                     return deferred.reject(err);
                 }
-                console.log("======");
-                console.log((result));
+                //console.log("======");
+                //console.log((result));
                 if(result.AuthRes.$.ret && result.AuthRes.$.ret == 'y') {
-                    deferred.resolve({
-                        isAuthenticated : true,
-                        errMessage : "",
-                        data : result
-                    });
+                    return deferred.resolve(result);
                 } else {
-                    deferred.resolve({
-                        isAuthenticated : false,
-                        errMessage : constants.errorMessages(result.AuthRes.$.err),
-                        data : result
-                    });
+                    return deferred.reject(new ErrorHandler( constants.errorMessages(result.AuthRes.$.err)).setData(result));
                     
                 }
             })
@@ -69,7 +64,7 @@ function doRequest(uid, reqXml, config) {
 	});
 
 	req.on('error', function (err) {
-		console.log(err.message);
+		console.log(err);
         return deferred.reject(err);
 	});
 

@@ -1,0 +1,9 @@
+- Verify the sign returned to verify correct data is received
+- Implementation of request OTP
+- Implementation of e-KYC
+- Add error codes from aadhar website
+- Improve logging add debug logging
+- Improve the validations
+    - make authentication api work without pi element as well
+    - Complete the API specifications --- In progress
+- Need to include tkn tag in XML request

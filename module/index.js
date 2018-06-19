@@ -1,5 +1,7 @@
 var conf = require('./api/configuration.js');
 var encryptor, aadharApi;
+var Q = require('q');
+
 exports.init = function() {
     return conf.init()
         .then(function(){
@@ -12,5 +14,8 @@ exports.init = function() {
         .then(function(){
             aadharApi = require('./api/auth.js');
             exports.authenticate = aadharApi.authenticate;
+        })
+        .catch(function(error){
+            return Q.reject(error);
         })
 }

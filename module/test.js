@@ -166,7 +166,7 @@ var TEST_DATA = [{
 }];
 api.init()
 .then(function(){
-    return api.authenticate(TEST_DATA[0].uid, TEST_DATA[0]);
+    return api.authenticate(TEST_DATA[0].uid, {});
 })
 .catch(function(err){
     if(err) {

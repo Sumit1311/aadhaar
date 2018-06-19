@@ -139,8 +139,12 @@ exports.errorMessages = function(err) {
             return ' “Pa” (address) attributes of demographic data did not match.'
         case "300" : 
             return ' Biometric data did not match.';
-        case "300" : 
-            return ' Biometric data did not match.';
+        case "310" : 
+            return 'Duplicate fingers used';
+        case "510" : 
+            return 'Invalid XML format';
+       default :
+            return 'Unknown error'
     }
 }
     
