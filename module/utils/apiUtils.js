@@ -1,3 +1,5 @@
+const constants = require('./constants.js');
+
 exports.needPi = function(personData) {
     if(personData.name || personData.lname || personData.lmv || personData.gender || personData.dob || personData.dobt || personData.age || personData.phone || personData.email) {
         return true;
@@ -39,4 +41,40 @@ exports.needPIN = function(personData) {
         return true;
     }
     return false;
+}
+
+exports.getListOfBioMetrics = function(personData) {
+   var bios = personData.bios;
+   var list = "";
+   var added = [0,0,0,0];
+   var isAdded = false;
+   for(var i = 0; i < bios.length; i++) {
+	if(bios[i].bioType == constants.BIO_TYPE.FINGER_MINUTIAE && added[0] != 1) {
+		isAdded = true;
+		list += constants.BIO_TYPE.FINGER_MINUTIAE;
+		added[0] = 1;
+	}	
+	else if(bios[i].bioType == constants.BIO_TYPE.FINGER_IMAGE && added[1] != 1) {
+		isAdded = true;
+		list += constants.BIO_TYPE.FINGER_IMAGE;
+                added[1] = 1;
+	}	
+	else if(bios[i].bioType == constants.BIO_TYPE.IRIS_IMAGE && added[2] != 1) {
+		isAdded = true;
+		list += constants.BIO_TYPE.IRIS_IMAGE;
+		added[2] = 1;
+	}
+	else if(bios[i].bioType == constants.BIO_TYPE.FACE_IMAGE_DATA && added[3] != 1) {
+		isAdded = true;
+		list += constants.BIO_TYPE.FACE_IMAGE_DATA;
+		added[3] = 1;
+	}
+        if(isAdded) {
+		list += ",";
+	}
+	if(added[0] && added[1] && added[2] && added[3]) {
+		break;
+	}	
+   }
+   return list.split(0, list.length - 1);   
 }

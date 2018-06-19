@@ -19,7 +19,15 @@ exports.buildAuthXML = function(personData) {
 
     var needPi = apiUtils.needPi(personData), needPa = apiUtils.needPa(personData), needPfa = apiUtils.needPfa(personData), needBio = apiUtils.needBio(personData), needOTP = apiUtils.needOTP(personData), needPIN = apiUtils.needPIN(personData);
 
-	let uses = new Uses({ pi: needPi ? constants.USES_PI.YES : constants.USES_PI.DEFAULT, pa: needPa ? constants.USES_PA.YES  : constants.USES_PA.DEFAULT, pfa: needPfa ? constants.USES_PFA.YES :constants.USES_PFA.DEFAULT, bio: needBio ? constants.USES_BIO.YES : constants.USES_BIO.DEFAULT, otp: needOTP ? constants.USES_OTP.YES : constants.USES_OTP.DEFAULT, pin: needPIN ? constants.USES_PIN.YES  :constants.USES_PIN.DEFAULT });
+	let uses = new Uses({ 
+		pi: needPi ? constants.USES_PI.YES : constants.USES_PI.DEFAULT, 
+		pa: needPa ? constants.USES_PA.YES  : constants.USES_PA.DEFAULT, 
+		pfa: needPfa ? constants.USES_PFA.YES :constants.USES_PFA.DEFAULT, 
+		bio: needBio ? constants.USES_BIO.YES : constants.USES_BIO.DEFAULT, 
+		needBio && (bt: apiUtils.getListOfBioMetrics(personData), )
+		otp: needOTP ? constants.USES_OTP.YES : constants.USES_OTP.DEFAULT, 
+		pin: needPIN ? constants.USES_PIN.YES  :constants.USES_PIN.DEFAULT 
+	});
 	let meta = new Meta({ udc: constants.META_UDC.DEFAULT });
 
 	let ci = moment(encryptor.getExpiry(), constants.DATE_FORMAT_UNIX).format(constants.CERT_EXPRY_FORMAT);
