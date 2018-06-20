@@ -5,6 +5,7 @@ var config = require("../api/configuration.js").getConfiguration();
 var constants = require('./constants.js');
 const encryptor = require('../api/encryptor.js');
 const signer = require('./signer.js');
+const ErrorHandler = require('./errorHandler.js');
 const apiUtils = require('./apiUtils.js');
 //Function to get all values in an object
 Object.values = Object.values || (obj => Object.keys(obj).map(key => obj[key]));
@@ -18,16 +19,20 @@ exports.buildAuthXML = function(personData) {
     let TEST_PERSON = personData;
 
     var needPi = apiUtils.needPi(personData), needPa = apiUtils.needPa(personData), needPfa = apiUtils.needPfa(personData), needBio = apiUtils.needBio(personData), needOTP = apiUtils.needOTP(personData), needPIN = apiUtils.needPIN(personData);
-
-	let uses = new Uses({ 
+    if(needPa && needPfa) {
+        throw new ErrorHandler('Both Pa and Pfa can\'t be used').setData(personData);
+    }
+	let uses = new Uses(Object.assign({ 
 		pi: needPi ? constants.USES_PI.YES : constants.USES_PI.DEFAULT, 
 		pa: needPa ? constants.USES_PA.YES  : constants.USES_PA.DEFAULT, 
 		pfa: needPfa ? constants.USES_PFA.YES :constants.USES_PFA.DEFAULT, 
 		bio: needBio ? constants.USES_BIO.YES : constants.USES_BIO.DEFAULT, 
-		needBio && (bt: apiUtils.getListOfBioMetrics(personData), )
 		otp: needOTP ? constants.USES_OTP.YES : constants.USES_OTP.DEFAULT, 
 		pin: needPIN ? constants.USES_PIN.YES  :constants.USES_PIN.DEFAULT 
-	});
+	},
+    needBio && {
+        bt: apiUtils.getListOfBioMetrics(personData)
+    }));
 	let meta = new Meta({ udc: constants.META_UDC.DEFAULT });
 
 	let ci = moment(encryptor.getExpiry(), constants.DATE_FORMAT_UNIX).format(constants.CERT_EXPRY_FORMAT);
@@ -35,17 +40,61 @@ exports.buildAuthXML = function(personData) {
 	let encrySKey = encryptor.encryptUsingPublicKey(sKey.toString('binary'));
 	let encEncrySKey = encryptor.encode64(encrySKey);
 	let skey = new Skey(encEncrySKey, { ci: ci });
+    let pi, pa, pfa, bios, pv;
+    if(needPi) {
+	    pi = new Pi(Object.assign({ 
+        ms: constants.PI_MATCHING_STGY.DEFAULT, 
+        mv: constants.PI_MATCH_VALUE.DEFAULT,
+        },
+        personData.name && {name: personData.name}, 
+        personData.gender && {gender: personData.gender}, 
+        personData.dob && {dob: personData.dob}, 
+        personData.dobt && {dobt: personData.dobt}, 
+        personData.phone && {phone: personData.phone}, 
+        personData.email && {email: personData.email} ));
+    }
+    if(needPa) {
+    pa = new Pa(Object.assign({
+        ms: constants.PA_MATCHING_STGY.DEFAULT
+        }, 
+        personData.street && {street: personData.street}, 
+        personData.vtc && {vtc: personData.vtc}, 
+        personData.subdist && {subdist: personData.subdist}, 
+        personData.dist && {dist: personData.district}, 
+        personData.state && {state: personData.state}, 
+        personData.pc && {pc: personData.pincode}
+    ));
+
+    }
 
 
-	let pi = new Pi({ ms: constants.PI_MATCHING_STGY.DEFAULT, mv: constants.PI_MATCH_VALUE.DEFAULT,name: TEST_PERSON.name/*, gender: TEST_PERSON.gender, dob: TEST_PERSON.dob, dobt: TEST_PERSON.dobt, phone: TEST_PERSON.phone, email: TEST_PERSON.email*/ });
+    if(needPfa) {
+        pfa = new Pfa(Object.assign({
+           ms: constants.PFA_MATCHING_STGY.DEFAULT,
+           mv:constants.PFA_MATCHING_STGY.DEFAULT
+        }, 
+        personData.av && {av: personData.address} 
+    ));
+
+    }
 	// let pa = new Pa({ms: PA_DEFAULT_MTCH_STGY, street: TEST_PERSON.street, vtc: TEST_PERSON.vtc, subdist: TEST_PERSON.subdist, dist: TEST_PERSON.district, state: TEST_PERSON.state, pc: TEST_PERSON.pincode})
+    if(needBios) {
+       bios = new Bios(empty, personData.bios) 
+    }
 
-	let demo = new Demo(pi);
+    if(needOTP || needPIN) {
+        pv = new Pv(Object.assign(
+        personData.OTP && {otp : personData.OTP},
+        personData.PIN && {pin : personData.PIN}
+        ));
+    }
+
+	let demo = new Demo(pi, pa, pfa);
 
 	let ts = moment().subtract(1, 'hour').format(constants.PID_TS_ISO8601);
     //console.log(config);
 	let ver = constants.AADHAR_DATA[config.API_VERSION].PID_DEFAULT_VER;
-	let pid = new Pid(demo, empty, empty, { ts: ts, ver: ver });
+	let pid = new Pid(demo, bios, pv, { ts: ts, ver: ver });
 
 	let pidXml = js2xml.parse("ns2:Pid", pid/* , {declaration: {include: false}}*/);
 	//console.log("PID:\n" + pidXml)
@@ -239,24 +288,34 @@ function Pfa(attrs) {
 	)
 }
 
-function Bios(attrs, bio) {
-	if (Object.values(constants.BIO_TYPE).indexOf(attrs.type) < 0
-		|| Object.values(constants.BIO_POSH).indexOf(attrs.posh) < 0
-		|| !attrs.bs || attrs.bio) {
+function Bios(attrs, bioArray) {
+	if (!bioArray || bioArray.length == 0) {
 		return;
 	}
 
-	this['@'] = {
+	/*this['@'] = {
 		dih: attrs.dih
-	};
-	this.Bio = {
+	};*/
+	this.Bio = [];
+
+    for(var i = 0;i < bioArray.length; i++) {
+        if(Object.values(constants.BIO_TYPE).indexOf(bioArray[i].type) < 0
+		|| Object.values(constants.BIO_POSH).indexOf(bioArray[i].posh) < 0
+		|| !bioArray[i].bs || bio[i].bio) {
+            throw new ErrorHandler("Invalid Bio Element").setData(bioArray[i]);
+        }
+        this.Bio.push_back(
+        {
 		'@': {
-			type: attrs.type,
-			posh: attrs.posh,
-			bs: attrs.bs
+			type: bioArray[i].type,
+			posh: bioArray[i].posh,
+			bs: bioArray[i].bs
 		},
-		'#': bio
-	}
+		'#': bioArray[i].bio
+	    }
+        )
+    }
+        
 }
 
 function Pv(attrs) {

@@ -1,4 +1,4 @@
-- Verify the sign returned to verify correct data is received
+- Verify the sign returned to verify correct data is received --- No need to do just save the received data -- need to document
 - Implementation of request OTP
 - Implementation of e-KYC
 - Add error codes from aadhar website
@@ -6,4 +6,13 @@
 - Improve the validations
     - make authentication api work without pi element as well
     - Complete the API specifications --- In progress
+    - Improve the validations before making the requests to servers
 - Need to include tkn tag in XML request
+- constants.PI_MATCH_VALUE see better way for handling this array (if needed) 
+- also make default values configurable
+- Need to support lang attribute in Demo and lname and lmv in pi lav and lmv in Pfa
+- Need to interpret info attribute from response
+- Need to finalize the txn value
+- Document the input you are expecting for different usage
+- Write unit tests.
+- add the required packages in package.json

@@ -2,6 +2,7 @@ const Q = require('q');
 const conf = require('./configuration.js');
 const constants = require('../utils/constants.js');
 const ErrorHandler = require('../utils/errorHandler.js');
+const apiUtils = require('../utils/apiUtils.js');
 const XMLBuilder = require('../utils/XMLBuilder.js');
 var parseString = require('xml2js').parseString;
 var https = require('http');
@@ -55,7 +56,7 @@ function doRequest(uid, reqXml, config) {
                 if(result.AuthRes.$.ret && result.AuthRes.$.ret == 'y') {
                     return deferred.resolve(result);
                 } else {
-                    return deferred.reject(new ErrorHandler( constants.errorMessages(result.AuthRes.$.err)).setData(result));
+                    return deferred.reject(new ErrorHandler( apiUtils.errorMessages(result.AuthRes.$.err)).setData(result));
                     
                 }
             })
