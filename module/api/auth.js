@@ -2,6 +2,7 @@ const Q = require('q');
 const conf = require('./configuration.js');
 const constants = require('../utils/constants.js');
 const ErrorHandler = require('../utils/errorHandler.js');
+const ApiResponse = require('../utils/apiResponse.js');
 const apiUtils = require('../utils/apiUtils.js');
 const XMLBuilder = require('../utils/XMLBuilder.js');
 var parseString = require('xml2js').parseString;
@@ -15,7 +16,7 @@ function aadharAuthentication(aadharNumber, data) {
     }
     return XMLBuilder.buildAuthXML(data)
     .then(function(authXML){
-        //console.log("XML is "+authXML);
+        console.log("XML is "+authXML);
         return doRequest(aadharNumber, authXML, conf.getConfiguration());
     })
     .catch(function(error){
@@ -47,19 +48,17 @@ function doRequest(uid, reqXml, config) {
 		res.on('end', function () {
 			console.log('\nResponse: ');
             //console.log(buffer);
-            parseString(buffer, function(err,result) {
-                if(err) {
-                    return deferred.reject(err);
-                }
-                //console.log("======");
-                //console.log((result));
-                if(result.AuthRes.$.ret && result.AuthRes.$.ret == 'y') {
-                    return deferred.resolve(result);
+            var response = new ApiResponse(buffer);
+            return response.parseResponse()
+                .then(function(parsedResponse){
+                if(parsedResponse && parsedResponse.AuthRes.$.ret && parsedResponse.AuthRes.$.ret == 'y') {
+                    return deferred.resolve(response);
                 } else {
-                    return deferred.reject(new ErrorHandler( apiUtils.errorMessages(result.AuthRes.$.err)).setData(result));
+                    return deferred.reject(new ErrorHandler( apiUtils.errorMessages(response.AuthRes.$.err)).setData(response));
                     
                 }
-            })
+                    
+                })
 			//return deferred.resolve(buffer);
 		});
 	});

@@ -14,6 +14,7 @@ exports.init = function() {
         .then(function(){
             aadharApi = require('./api/auth.js');
             exports.authenticate = aadharApi.authenticate;
+            exports.constants = require('./util/costants.js');
         })
         .catch(function(error){
             return Q.reject(error);

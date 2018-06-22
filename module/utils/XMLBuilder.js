@@ -78,7 +78,7 @@ exports.buildAuthXML = function(personData) {
 
     }
 	// let pa = new Pa({ms: PA_DEFAULT_MTCH_STGY, street: TEST_PERSON.street, vtc: TEST_PERSON.vtc, subdist: TEST_PERSON.subdist, dist: TEST_PERSON.district, state: TEST_PERSON.state, pc: TEST_PERSON.pincode})
-    if(needBios) {
+    if(needBio) {
        bios = new Bios(empty, personData.bios) 
     }
 
@@ -97,7 +97,7 @@ exports.buildAuthXML = function(personData) {
 	let pid = new Pid(demo, bios, pv, { ts: ts, ver: ver });
 
 	let pidXml = js2xml.parse("ns2:Pid", pid/* , {declaration: {include: false}}*/);
-	//console.log("PID:\n" + pidXml)
+	console.log("PID:\n" + pidXml)
 
 	let encryPidXml = encryptor.encryptUsingSessionKey(pidXml, ts, sKey, true);
 	let encEncryPidXml = encryptor.encode64(encryPidXml)

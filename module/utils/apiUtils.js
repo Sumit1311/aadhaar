@@ -120,7 +120,43 @@ exports.errorMessages = function(err) {
         case "505" : return "Synchronized Key usage not allowed for the AUA"
         case "510" : 
             return 'Invalid XML format';
+        case "511" : return 'Invalid PID XML format';
+        case "520" : return 'Invalid device';
+        case "521" : return 'Invalid FDC code under Meta tag';
+        case "522" : return 'Invalid IDC code under Meta tag';
+        case "530" : return 'Invalid authenticator code';
+        case "540" : return 'Invalid Auth XML version';
+        case "541" : return 'Invalid PID XML version';
+        case "542" : return 'AUA not authorized for ASA. This error will be returned if AUA and ASA do not have linking in the portal';
+        case "543" : return 'Sub-AUA not associated with “AUA”. This error will be returned if Sub-AUA specified in “sa” attribute is not added as “Sub-AUA” in portal';
+        case "550" : return 'Invalid “Uses” element attributes';
+        case "551" : return 'Invalid “tid” value for registered device';
+        case "552" : return 'Invalid registered device key, please reset';
+        case "553" : return 'Invalid registered device HOTP, please reset';
+        case "554" : return 'Invalid registered device encryption';
+        case "555" : return 'Mandatory reset required for registered device';
+        case "561" : return 'Request expired (“Pid->ts” value is older than N hours where N is a configured threshold in authentication server)';
+        case "562" : return  'Timestamp value is future time (value specified “Pid->ts” is ahead of authentication server time beyond acceptable threshold)'
+        case "563" : return  'Duplicate request (this error occurs when exactly same authentication request was re-sent by AUA)';
+        case "564" : return 'HMAC Validation failed';
+        case '565' : return  'AUA license has expired';
+        case "566" : return 'Invalid non-decryptable license key';
+        case "567" : return 'Invalid input (this error occurs when some unsupported characters were found in Indian language values, “lname” or “lav”)';
+        case "568" : return 'Unsupported Language';
+        case "569" :return 'Digital signature verification failed (means that authentication request XML was modified after it was signed)';
+        case "570" : return  'Invalid key info in digital signature (this means that certificate used for signing the authentication request is not valid – it is either';
        default :
             return 'Unknown error'
+    }
+}
+
+exports.parseInfoField =function(info) {
+    var infoVersion = info.splice(0,2);  
+    var fields = info.substring(4, info.length-1).split(',');
+    console.log(fields);
+
+    return  {
+        version : infoVersion,
+        encodedUsageData : parseInt(fields[2], 16)
     }
 }

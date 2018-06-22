@@ -3,7 +3,7 @@ var api = require('./index.js');
 var TEST_DATA = [{
 	uid: '999941057058',
 	name: 'Shivshankar Choudhury',
-	dob: '13-05-1968',
+	dob: '1968-05-13',
 	dobt: 'V',
 	gender: 'M',
 	phone: '2810806979',
@@ -166,11 +166,15 @@ var TEST_DATA = [{
 }];
 api.init()
 .then(function(){
-    return api.authenticate(TEST_DATA[0].uid, {});
+    return api.authenticate(TEST_DATA[0].uid, TEST_DATA[0]);
+})
+.then(function(){
+    console.log("Authentication Successful");
 })
 .catch(function(err){
     if(err) {
-        console.log(err);
+        console.log(err.data && err.data.getParseResponse());
+        var info = err.data && err.data.getInfoField();
         process.exit(1);
     }
 })
